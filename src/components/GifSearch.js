@@ -1,47 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Box, TextField, Button, CircularProgress, Typography } from '@mui/material';
+import GifList from './GifList';
 
 function GifSearch() {
-  const [query, setQuery] = useState(''); // Estado para la búsqueda
-  const [gifs, setGifs] = useState([]); // Estado para los resultados
+  const [query, setQuery] = useState('');
+  const [gifs, setGifs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const API_KEY = 'ZO0q4cotnGUGLk3s35gm1jq39lJCaHxh'; // La API Key de Giphy
+  const API_KEY = 'ZO0q4cotnGUGLk3s35gm1jq39lJCaHxh';
+
+  useEffect(() => {
+    const fetchTrendingGifs = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `https://api.giphy.com/v1/gifs/trending?api_key=${API_KEY}&limit=32&rating=g`
+        );
+        const { data } = await response.json();
+        setGifs(data);
+        setError('');
+      } catch (err) {
+        setError('Error al cargar los GIFs populares.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrendingGifs();
+  }, []);
 
   const handleSearch = async () => {
-    if (!query) return; // Si la búsqueda está vacía, no hacemos nada
+    if (!query) return;
     try {
+      setLoading(true);
       const response = await fetch(
         `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${query}&limit=32&rating=g`
       );
       const { data } = await response.json();
-      setGifs(data); // Guardamos los GIFs en el estado
-    } catch (error) {
-      console.error('Error al buscar los GIFs:', error);
+      setGifs(data);
+      setError('');
+    } catch (err) {
+      setError('Error al buscar los GIFs.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Búsqueda de GIFs</h2>
-      <div>
-        <input
-          type="text"
-          placeholder="Escribe algo..."
+    <Box sx={{ padding: '20px' }}>
+      <Typography variant="h4" gutterBottom>
+        GIFs Populares y Búsqueda
+      </Typography>
+      <Box sx={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <TextField
+          label="Buscar GIFs"
+          variant="outlined"
+          fullWidth
           value={query}
-          onChange={(e) => setQuery(e.target.value)} // Actualizamos el estado con el valor ingresado
+          onChange={(e) => setQuery(e.target.value)}
         />
-        <button onClick={handleSearch}>Buscar</button>
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px' }}>
-        {gifs.map((gif) => (
-          <img
-            key={gif.id}
-            src={gif.images.fixed_height.url}
-            alt={gif.title}
-            style={{ width: '200px', margin: '10px' }}
-          />
-        ))}
-      </div>
-    </div>
+        <Button variant="contained" color="primary" onClick={handleSearch}>
+          Buscar
+        </Button>
+      </Box>
+      {loading ? (
+        <CircularProgress />
+      ) : error ? (
+        <Typography color="error">{error}</Typography>
+      ) : (
+        <GifList gifs={gifs} />
+      )}
+    </Box>
   );
 }
 
