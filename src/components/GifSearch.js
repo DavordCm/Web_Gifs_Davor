@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Button, CircularProgress, Typography } from '@mui/material';
 import GifList from './GifList';
 
 function GifSearch() {
@@ -22,7 +21,6 @@ function GifSearch() {
         setError('');
       } catch (err) {
         setError('Error al cargar los GIFs populares.');
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -43,37 +41,36 @@ function GifSearch() {
       setError('');
     } catch (err) {
       setError('Error al buscar los GIFs.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <Box sx={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom>
-        GIFs Populares y Búsqueda
-      </Typography>
-      <Box sx={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <TextField
-          label="Buscar GIFs"
-          variant="outlined"
-          fullWidth
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <Button variant="contained" color="primary" onClick={handleSearch}>
-          Buscar
-        </Button>
-      </Box>
-      {loading ? (
-        <CircularProgress />
-      ) : error ? (
-        <Typography color="error">{error}</Typography>
-      ) : (
-        <GifList gifs={gifs} />
-      )}
-    </Box>
+  return React.createElement(
+    'div',
+    { className: 'Gif-search-container' },
+    React.createElement('h1', { className: 'Gif-search-title' }, 'Explora GIFs'),
+    React.createElement(
+      'div',
+      { className: 'Gif-search-bar' },
+      React.createElement('input', {
+        type: 'text',
+        className: 'Gif-search-input',
+        placeholder: 'Busca GIFs aquí...',
+        value: query,
+        onChange: (e) => setQuery(e.target.value),
+      }),
+      React.createElement(
+        'button',
+        { className: 'Gif-search-button', onClick: handleSearch },
+        'Buscar'
+      )
+    ),
+    loading
+      ? React.createElement('p', { className: 'Gif-loading' }, 'Cargando...')
+      : error
+      ? React.createElement('p', { className: 'Gif-error' }, error)
+      : React.createElement(GifList, { gifs })
   );
 }
 
