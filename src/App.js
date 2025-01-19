@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.css'; // Si tienes estilos globales
+import './App.css'; // Asegurarse de que la ruta sea la correcta
 import GifSearch from './components/GifSearch'; // Asegúrate de que la ruta sea correcta
 
 function App() {
