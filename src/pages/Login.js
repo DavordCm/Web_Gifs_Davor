@@ -16,9 +16,8 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí puedes agregar la lógica para autenticar al usuario.
     alert('Inicio de sesión exitoso');
-    navigate('/gifsearch'); // Redirige al buscador de GIFs después de iniciar sesión.
+    navigate('/gifsearch'); 
   };
 
   return (
