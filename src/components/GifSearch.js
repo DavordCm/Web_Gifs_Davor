@@ -23,7 +23,6 @@ function GifSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [activeSection, setActiveSection] = useState("Comunidad");
-  const [activeForm, setActiveForm] = useState("login"); // Login o Registro
 
   const API_KEY = "NZcfw6dvtCf8bjqi5BVtVfKVITPCbTy3";
 
@@ -47,6 +46,12 @@ function GifSearch() {
       fetchSectionGifs("Recursos");
     }
   }, [activeSection]);
+
+  useEffect(() => {
+    if (selectedCategories.length > 0) {
+      fetchGifsByCategories();
+    }
+  }, [selectedCategories]);
 
   const fetchTrendingGifs = async () => {
     try {
@@ -82,6 +87,24 @@ function GifSearch() {
     }
   };
 
+  const fetchGifsByCategories = async () => {
+    try {
+      setLoading(true);
+      const query = selectedCategories.join(",");
+      const response = await fetch(
+        `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${query}&limit=32&rating=g`
+      );
+      const { data } = await response.json();
+      setGifs(data);
+      setError("");
+    } catch (err) {
+      setError("Error al cargar los GIFs por categorías seleccionadas.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = async () => {
     if (!searchTerm) return;
 
@@ -110,132 +133,30 @@ function GifSearch() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#121212", color: "#fff", padding: "20px" }}>
-      {/* Formulario de Login y Registro */}
-      <Box sx={{ marginBottom: "20px" }}>
-        <ButtonGroup variant="contained">
-          <Button
-            onClick={() => setActiveForm("login")}
-            sx={{
-              backgroundColor: activeForm === "login" ? "#1976d2" : "#444",
-              "&:hover": { backgroundColor: "#1976d2" },
-            }}
-          >
-            Login
-          </Button>
-          <Button
-            onClick={() => setActiveForm("register")}
-            sx={{
-              backgroundColor: activeForm === "register" ? "#1976d2" : "#444",
-              "&:hover": { backgroundColor: "#1976d2" },
-            }}
-          >
-            Registro
-          </Button>
-        </ButtonGroup>
-
-        {activeForm === "login" && (
-          <Box sx={{ marginTop: "20px", padding: "20px", backgroundColor: "#000", borderRadius: "10px" }}>
-            <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-              Iniciar Sesión
-            </Typography>
-            <TextField
-              fullWidth
-              label="Correo"
-              variant="outlined"
-              sx={{ backgroundColor: "#fff", borderRadius: "5px", marginBottom: "10px" }}
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label="Contraseña"
-              variant="outlined"
-              sx={{ backgroundColor: "#fff", borderRadius: "5px", marginBottom: "10px" }}
-            />
-            <Button variant="contained" color="primary" fullWidth>
-              Entrar
-            </Button>
-          </Box>
-        )}
-
-        {activeForm === "register" && (
-          <Box sx={{ marginTop: "20px", padding: "20px", backgroundColor: "#000", borderRadius: "10px" }}>
-            <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-              Registro
-            </Typography>
-            <TextField
-              fullWidth
-              label="Nombre"
-              variant="outlined"
-              sx={{ backgroundColor: "#fff", borderRadius: "5px", marginBottom: "10px" }}
-            />
-            <TextField
-              fullWidth
-              label="Correo"
-              variant="outlined"
-              sx={{ backgroundColor: "#fff", borderRadius: "5px", marginBottom: "10px" }}
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label="Contraseña"
-              variant="outlined"
-              sx={{ backgroundColor: "#fff", borderRadius: "5px", marginBottom: "10px" }}
-            />
-            <Button variant="contained" color="primary" fullWidth>
-              Registrarse
-            </Button>
-          </Box>
-        )}
-      </Box>
-
-      {/* Resto de la aplicación */}
-      <Box sx={{ display: "flex" }}>
-        {/* Barra lateral */}
-        <Box sx={{ width: "250px", marginRight: "20px" }}>
-          <Typography variant="h6" gutterBottom>
-            Categorías
-          </Typography>
-          <List>
-            {categories.map((category) => (
-              <ListItem key={category}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedCategories.includes(category)}
-                      onChange={() => handleCategoryChange(category)}
-                      sx={{
-                        color: "#fff",
-                        "&.Mui-checked": { color: "#1976d2" },
-                      }}
-                    />
-                  }
-                  label={category}
-                  sx={{ color: "#ccc" }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-
-        {/* Contenido principal */}
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#121212", color: "#fff" }}>
+      {/* Contenido */}
+      <Box sx={{ padding: "20px" }}>
         <Box
           sx={{
-            flexGrow: 1,
-            backgroundColor: "#000",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow: "0px 4px 10px rgba(0,0,0,0.5)",
+            marginBottom: "20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <Box sx={{ marginBottom: "20px", display: "flex", justifyContent: "space-between" }}>
+          {/* Barra de búsqueda */}
+          <Box sx={{ flex: 1, display: "flex", alignItems: "center" }}>
             <TextField
               fullWidth
               variant="outlined"
               placeholder="Buscar GIFs"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{ backgroundColor: "#fff", borderRadius: "5px", marginRight: "10px" }}
+              sx={{
+                backgroundColor: "#fff",
+                borderRadius: "5px",
+                marginRight: "10px",
+              }}
             />
             <Button
               variant="contained"
@@ -245,27 +166,89 @@ function GifSearch() {
             >
               Buscar
             </Button>
-            <ButtonGroup variant="contained">
-              {["Comunidad", "Recursos", "Novedades"].map((section) => (
-                <Button
-                  key={section}
-                  onClick={() => setActiveSection(section)}
-                  sx={{
-                    backgroundColor: activeSection === section ? "#1976d2" : "#444",
-                    "&:hover": { backgroundColor: "#1976d2" },
-                  }}
-                >
-                  {section}
-                </Button>
-              ))}
+            {/* Botones Comunidad, Recursos, Novedades */}
+            <ButtonGroup variant="contained" sx={{ backgroundColor: "#1976d2" }}>
+              <Button
+                onClick={() => setActiveSection("Comunidad")}
+                sx={{
+                  backgroundColor: activeSection === "Comunidad" ? "#1565c0" : "",
+                }}
+              >
+                Comunidad
+              </Button>
+              <Button
+                onClick={() => setActiveSection("Recursos")}
+                sx={{
+                  backgroundColor: activeSection === "Recursos" ? "#1565c0" : "",
+                }}
+              >
+                Recursos
+              </Button>
+              <Button
+                onClick={() => setActiveSection("Novedades")}
+                sx={{
+                  backgroundColor: activeSection === "Novedades" ? "#1565c0" : "",
+                }}
+              >
+                Novedades
+              </Button>
             </ButtonGroup>
           </Box>
 
-          {/* Contenido */}
+          {/* Botones Registrar y Login */}
           <Box>
-            <Typography variant="h5" sx={{ color: "#fff", marginBottom: "10px" }}>
-              {activeSection}
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{ marginRight: "10px" }}
+            >
+              Registrar
+            </Button>
+            <Button variant="contained" color="secondary">
+              Login
+            </Button>
+          </Box>
+        </Box>
+
+        {/* Contenido principal */}
+        <Box sx={{ display: "flex" }}>
+          {/* Barra lateral */}
+          <Box sx={{ width: "250px", marginRight: "20px" }}>
+            <Typography variant="h6" gutterBottom>
+              Categorías
             </Typography>
+            <List>
+              {categories.map((category) => (
+                <ListItem key={category}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={selectedCategories.includes(category)}
+                        onChange={() => handleCategoryChange(category)}
+                        sx={{
+                          color: "#fff",
+                          "&.Mui-checked": { color: "#1976d2" },
+                        }}
+                      />
+                    }
+                    label={category}
+                    sx={{ color: "#ccc" }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+
+          {/* Contenido de GIFs */}
+          <Box
+            sx={{
+              flexGrow: 1,
+              backgroundColor: "#000",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.5)",
+            }}
+          >
             {loading ? (
               <CircularProgress sx={{ color: "#fff" }} />
             ) : error ? (
@@ -274,7 +257,13 @@ function GifSearch() {
               <Grid container spacing={2}>
                 {gifs.map((gif) => (
                   <Grid item xs={6} sm={4} md={3} key={gif.id}>
-                    <Card sx={{ backgroundColor: "#121212", boxShadow: "none", borderRadius: "10px" }}>
+                    <Card
+                      sx={{
+                        backgroundColor: "#121212",
+                        boxShadow: "none",
+                        borderRadius: "10px",
+                      }}
+                    >
                       <CardActionArea>
                         <CardMedia
                           component="img"
