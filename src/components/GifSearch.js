@@ -1,20 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Grid,
-  Typography,
-  TextField,
-  Card,
-  CardActionArea,
-  CardMedia,
-  CircularProgress,
-  Checkbox,
-  FormControlLabel,
-  List,
-  ListItem,
-  Button,
-  ButtonGroup,
-} from "@mui/material";
+import { Box, Grid, Typography, TextField, Card, CardActionArea, CardMedia, CircularProgress, Checkbox, FormControlLabel, List, ListItem, Button, ButtonGroup } from "@mui/material";
+import { useNavigate } from "react-router-dom"; // Asegúrate de importar useNavigate
 
 function GifSearch() {
   const [gifs, setGifs] = useState([]);
@@ -36,6 +22,8 @@ function GifSearch() {
     "Deportes",
     "Música",
   ];
+
+  const navigate = useNavigate(); // Inicializa el hook useNavigate
 
   useEffect(() => {
     if (activeSection === "Novedades") {
@@ -201,10 +189,15 @@ function GifSearch() {
               variant="contained"
               color="secondary"
               sx={{ marginRight: "10px" }}
+              onClick={() => navigate("/register")} // Redirige a la página de registro
             >
               Registrar
             </Button>
-            <Button variant="contained" color="secondary">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => navigate("/login")} // Redirige a la página de login
+            >
               Login
             </Button>
           </Box>

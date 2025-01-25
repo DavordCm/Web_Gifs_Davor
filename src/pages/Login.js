@@ -8,6 +8,11 @@ function Login() {
   });
 
   const navigate = useNavigate();
+//Ejemplo de usuario falso
+  const fakeUser = {
+    email: 'usuario@ejemplo.com',
+    password: '123456',
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,8 +21,13 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('Inicio de sesión exitoso');
-    navigate('/gifsearch'); 
+    
+    if (credentials.email === fakeUser.email && credentials.password === fakeUser.password) {
+      alert('¡Accediste correctamente!');
+      navigate('/gifsearch'); // Redirige a la página deseada
+    } else {
+      alert('Correo o contraseña incorrectos');
+    }
   };
 
   return (
